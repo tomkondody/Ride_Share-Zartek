@@ -1,26 +1,28 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
+
 from .models import Ride
-from .serializers import RideCreateSerializer, RideListSerializer
-from rest_framework.viewsets import ModelViewSet
+from .serializers import RideCreateSerializer, RideListSerializer, RideDetailSerializer, RideStatusSerializer
 
 
-class RideViewSet(ModelViewSet):
+class RideViewSet(viewsets.ModelViewSet):
 
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
+    queryset = Ride.objects.all()
 
-    def create(self, request):
-        serializer = RideCreateSerializer(data=request.data)
+    # choose serializer based on action
+    def get_serializer_class(self):
+        if self.action == "create":
+            return RideCreateSerializer
+        elif self.action == "retrieve":
+            return RideDetailSerializer
+        elif self.action in ["start", "complete", "cancel"]:
+            return RideStatusSerializer
+        return RideListSerializer
 
-        if serializer.is_valid():
-            ride = serializer.save(rider=request.user)
-            return Response(
-                {"message": "Ride created", "ride_id": ride.id},
-                status=status.HTTP_201_CREATED
-            )
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    # list rides of logged in user
     def list(self, request):
         rides = Ride.objects.filter(rider=request.user)
 
@@ -32,15 +34,63 @@ class RideViewSet(ModelViewSet):
         serializer = RideListSerializer(rides, many=True)
         return Response(serializer.data)
 
+    # create ride
+    def perform_create(self, serializer):
+        serializer.save(rider=self.request.user)
 
-    def retrieve(self, request, pk=None):
-        try:
-            ride = Ride.objects.get(id=pk, rider=request.user)
-        except Ride.DoesNotExist:
+    # -----------------------------
+    # START RIDE
+    # -----------------------------
+    @action(detail=True, methods=["post"])
+    def start(self, request, pk=None):
+        ride = self.get_object()
+
+        if ride.status != "REQUESTED":
             return Response(
-                {"error": "Ride not found"},
-                status=status.HTTP_404_NOT_FOUND
+                {"error": "Ride cannot be started"},
+                status=status.HTTP_400_BAD_REQUEST
             )
 
-        serializer = RideListSerializer(ride)
+        ride.status = "STARTED"
+        ride.save()
+
+        serializer = RideStatusSerializer(ride)
+        return Response(serializer.data)
+
+    # -----------------------------
+    # COMPLETE RIDE
+    # -----------------------------
+    @action(detail=True, methods=["post"])
+    def complete(self, request, pk=None):
+        ride = self.get_object()
+
+        if ride.status != "STARTED":
+            return Response(
+                {"error": "Ride cannot be completed"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        ride.status = "COMPLETED"
+        ride.save()
+
+        serializer = RideStatusSerializer(ride)
+        return Response(serializer.data)
+
+    # -----------------------------
+    # CANCEL RIDE
+    # -----------------------------
+    @action(detail=True, methods=["post"])
+    def cancel(self, request, pk=None):
+        ride = self.get_object()
+
+        if ride.status != "REQUESTED":
+            return Response(
+                {"error": "Ride cannot be cancelled"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        ride.status = "CANCELLED"
+        ride.save()
+
+        serializer = RideStatusSerializer(ride)
         return Response(serializer.data)
