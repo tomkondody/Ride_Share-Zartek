@@ -7,3 +7,10 @@ class RideCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ride
         fields = ['id', 'pickup_location', 'dropoff_location']
+
+class RideListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Ride
+        fields = '__all__'
+
