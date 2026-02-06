@@ -19,6 +19,18 @@ from django.urls import path, include
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from django.http import HttpResponse
+from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def home(request):
+    return Response({"message": "Ride Sharing API is running successfully 🚀"})
+
 
 schema_view = get_schema_view(
     openapi.Info(
