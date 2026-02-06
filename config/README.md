@@ -1,38 +1,37 @@
-# Ride Sharing Backend API
+# 🚗 Ride Sharing Backend API
 
-A Django REST Framework based backend API for a basic ride-sharing system.
-
----
-
-## 🚀 Features
-
-- User Registration & JWT Authentication  
-- Create Ride Requests  
-- List & View Ride Details  
-- Ride Status Management (Start, Complete, Cancel)  
-- Driver Accept Ride  
-- Simple Ride Matching (First-Come-First-Serve)  
-- Ride Location Tracking (Simulation)  
-- Pagination for List APIs  
-- Basic & Advanced Automated Tests  
+A Django REST Framework based backend API for a basic ride-sharing system.  
+This project provides authentication, ride management, driver assignment, ride status updates, real-time location simulation, testing, and interactive API documentation using Swagger.
 
 ---
 
-## 🛠 Tech Stack
+## 🌐 Live Swagger Documentation
 
-- Python  
-- Django  
-- Django REST Framework  
-- SimpleJWT  
-- SQLite  
+https://ride-share-zartek.onrender.com/swagger/
 
 ---
 
-## ⚙️ Setup Instructions
+## ✅ Features
 
-### 1️⃣ Create Virtual Environment
+- User Registration & Login (JWT)
+- Create Ride Request
+- List & View Rides
+- Driver Accept Ride
+- Start / Complete / Cancel Ride
+- Ride Location Update
+- Pagination
+- Automated Tests
+- Swagger API Docs
+
+---
+
+## ⚙️ Local Setup
 
 ```bash
+git clone https://github.com/tomkondody/Ride_Share-Zartek.git
+cd config
 python -m venv venv
-source venv/bin/activate   # mac/linux
-venv\Scripts\activate      # windows
+venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
