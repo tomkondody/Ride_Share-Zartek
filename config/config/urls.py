@@ -29,25 +29,27 @@ from rest_framework.response import Response
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def home(request):
-    return Response({"message": "Ride Sharing API is running successfully 🚀"})
+    return HttpResponse("Ride Sharing API is running successfully 🚀")
 
 
 schema_view = get_schema_view(
     openapi.Info(
         title="Ride Sharing API",
         default_version="v1",
-        description="API documentation for Ride Sharing Backend",
+        description="Ride Sharing Backend APIs",
     ),
     public=True,
-    permission_classes=[permissions.AllowAny],
+    permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [
+    path("", home),
     path("admin/", admin.site.urls),
     path("api/users/", include("users.urls")),
     path("api/", include("rides.urls")),
     path("swagger/", schema_view.with_ui("swagger", cache_timeout=0)),
     path("redoc/", schema_view.with_ui("redoc", cache_timeout=0)),
+
 ]
 
 
