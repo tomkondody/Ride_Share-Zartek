@@ -68,3 +68,64 @@ class RideTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["status"], "STARTED")
+
+    def test_cannot_accept_accepted_ride(self):
+        ride = Ride.objects.create(
+            rider=self.rider,
+            pickup_location="City",
+            dropoff_location="Mall",
+            driver=self.driver
+        )
+
+        self.authenticate_driver()
+        response = self.client.post(f"/api/rides/{ride.id}/accept/")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_cannot_start_completed_ride(self):
+        ride = Ride.objects.create(
+            rider=self.rider,
+            pickup_location="City",
+            dropoff_location="Mall",
+            status="COMPLETED"
+        )
+
+        self.authenticate_rider()
+        response = self.client.post(f"/api/rides/{ride.id}/start/")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_ride_location(self):
+        ride = Ride.objects.create(
+            rider=self.rider,
+            pickup_location="City",
+            dropoff_location="Mall"
+        )
+
+        self.authenticate_rider()
+
+        response = self.client.post(
+            f"/api/rides/{ride.id}/location/",
+            {
+                "current_latitude": 10.5,
+                "current_longitude": 77.2
+            }
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["current_latitude"], 10.5)
+
+    def test_get_ride_location(self):
+        ride = Ride.objects.create(
+            rider=self.rider,
+            pickup_location="City",
+            dropoff_location="Mall",
+            current_latitude=9.1,
+            current_longitude=76.3
+        )
+
+        self.authenticate_rider()
+        response = self.client.get(f"/api/rides/{ride.id}/location/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["current_latitude"], 9.1)
