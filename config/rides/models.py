@@ -40,3 +40,6 @@ class Ride(models.Model):
 
     def __str__(self):
         return f"Ride {self.id} - {self.status}"
+
+    current_latitude = models.FloatField(null=True, blank=True)
+    current_longitude = models.FloatField(null=True, blank=True)

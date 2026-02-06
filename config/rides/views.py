@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 
 from .models import Ride
-from .serializers import RideCreateSerializer, RideListSerializer, RideDetailSerializer, RideStatusSerializer ,RideAcceptSerializer
+from .serializers import RideCreateSerializer, RideListSerializer, RideDetailSerializer, RideLocationSerializer, RideStatusSerializer ,RideAcceptSerializer ,RideLocationSerializer
 
 
 class RideViewSet(viewsets.ModelViewSet):
@@ -22,6 +22,8 @@ class RideViewSet(viewsets.ModelViewSet):
             return RideStatusSerializer
         elif self.action == "accept":
             return RideAcceptSerializer
+        elif self.action == "location":
+            return RideLocationSerializer
         return RideListSerializer
 
     # list rides of logged in user
@@ -121,3 +123,20 @@ class RideViewSet(viewsets.ModelViewSet):
 
         serializer = RideAcceptSerializer(ride)
         return Response(serializer.data)
+    
+    # -----------------------------
+    # RIDE LOCATION UPDATE / VIEW
+    # -----------------------------
+    @action(detail=True, methods=["get", "post"])
+    def location(self, request, pk=None):
+        ride = self.get_object()
+
+        if request.method == "POST":
+            serializer = RideLocationSerializer(ride, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+
+        serializer = RideLocationSerializer(ride)
+        return Response(serializer.data)
+

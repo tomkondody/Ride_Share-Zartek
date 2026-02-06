@@ -28,3 +28,8 @@ class RideAcceptSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ride
         fields = ["id", "driver", "status"]
+
+class RideLocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ride
+        fields = ["id", "current_latitude", "current_longitude"]
