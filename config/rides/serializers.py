@@ -23,3 +23,8 @@ class RideDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ride
         fields = "__all__"
+
+class RideAcceptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ride
+        fields = ["id", "driver", "status"]

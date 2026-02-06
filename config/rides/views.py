@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 
 from .models import Ride
-from .serializers import RideCreateSerializer, RideListSerializer, RideDetailSerializer, RideStatusSerializer
+from .serializers import RideCreateSerializer, RideListSerializer, RideDetailSerializer, RideStatusSerializer ,RideAcceptSerializer
 
 
 class RideViewSet(viewsets.ModelViewSet):
@@ -20,6 +20,8 @@ class RideViewSet(viewsets.ModelViewSet):
             return RideDetailSerializer
         elif self.action in ["start", "complete", "cancel"]:
             return RideStatusSerializer
+        elif self.action == "accept":
+            return RideAcceptSerializer
         return RideListSerializer
 
     # list rides of logged in user
@@ -93,4 +95,29 @@ class RideViewSet(viewsets.ModelViewSet):
         ride.save()
 
         serializer = RideStatusSerializer(ride)
+        return Response(serializer.data)
+
+    # -----------------------------
+    # DRIVER ACCEPT RIDE
+    # -----------------------------
+    @action(detail=True, methods=["post"])
+    def accept(self, request, pk=None):
+        ride = self.get_object()
+
+        if ride.status != "REQUESTED":
+            return Response(
+                {"error": "Ride cannot be accepted"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if ride.driver is not None:
+            return Response(
+                {"error": "Ride already has a driver"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        ride.driver = request.user
+        ride.save()
+
+        serializer = RideAcceptSerializer(ride)
         return Response(serializer.data)
