@@ -3,10 +3,17 @@ from .models import Ride
 
 
 class RideCreateSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Ride
-        fields = ['id', 'pickup_location', 'dropoff_location']
+        fields = [
+            "id",
+            "pickup_location",
+            "dropoff_location",
+            "status",
+            "driver"
+        ]
+        read_only_fields = ["status", "driver"]
+
 
 class RideListSerializer(serializers.ModelSerializer):
 
